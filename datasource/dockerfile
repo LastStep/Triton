@@ -1,0 +1,25 @@
+FROM python:3.13-slim
+
+WORKDIR /code
+
+ENV PYTHONUNBUFFERED=true \
+    PIP_ROOT_USER_ACTION=ignore \
+    PIP_DISABLE_PIP_VERSION_CHECK=on \
+    POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_CREATE=false
+
+RUN apt-get update && apt-get -y install libpq-dev gcc
+
+COPY pyproject.toml poetry.lock /code/
+
+RUN pip install poetry && \
+    poetry install --no-interaction --no-root --no-ansi
+
+# --without dev: 
+# This flag instructs Poetry to skip installing any dependencies that are marked as "development" dependencies in your pyproject.toml file. 
+# This is useful for production images where you typically only need the runtime dependencies
+
+# Copy the project files into the container
+COPY . /code
+
+CMD ["poetry", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
