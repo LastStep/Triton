@@ -14,13 +14,13 @@ services:
       - WATCHPACK_POLLING=true
     user: root
   
-  datasource:
+  backend:
     build:
-      context: ./datasource
+      context: ./backend
       dockerfile: dockerfile
     # restart: always
     # command: python uvicorn src/main:app --host 0.0.0.0 --port 8000
     ports:
       - "8000:8000"
     volumes:
-      - ./datasource:/code
+      - ./backend:/code

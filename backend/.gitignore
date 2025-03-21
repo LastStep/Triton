@@ -1,7 +1,9 @@
 
 .venv
-/data
+/data-assets
 
 __pycache__
 *.pyc
+
+.env
 
