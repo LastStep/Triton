@@ -4,7 +4,7 @@ from google import genai
 from google.genai import types
 import pandas as pd
 
-os.environ['GOOGLE_API_KEY'] = 'AIzaSyB4nJg52SQP4m9q0850MeE_VTiRJbTofY4'
+os.environ['GOOGLE_API_KEY'] = os.getenv('GOOGLE_API_KEY')
 # os.environ['OPENAI_API_KEY'] = os.getenv('OPENAI_API_KEY')
 
 
