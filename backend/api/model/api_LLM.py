@@ -1,8 +1,11 @@
-import os
+import os, re
+from typing import List, Optional, TypedDict
 from google import genai
+from google.genai import types
+import pandas as pd
 
-os.environ['GOOGLE_API_KEY'] = os.getenv('GOOGLE_API_KEY')
-os.environ['OPENAI_API_KEY'] = os.getenv('OPENAI_API_KEY')
+os.environ['GOOGLE_API_KEY'] = 'AIzaSyB4nJg52SQP4m9q0850MeE_VTiRJbTofY4'
+# os.environ['OPENAI_API_KEY'] = os.getenv('OPENAI_API_KEY')
 
 
 googleLLM = genai.Client()
@@ -36,3 +39,46 @@ Your goal is to read the provided book text and identify:
 The provided book text is as follows:
 """
 
+class PoemTitleResponse(TypedDict): 
+    SectionTitle: Optional[str]
+    PoemName: str
+
+class BookResponse(TypedDict): 
+    SectionTitle: Optional[str]
+    PoemName: str
+    PoemContent: str
+
+
+def parseModelOutput(model_output: str) -> List[PoemTitleResponse]:
+    poem_entries: List[PoemTitleResponse] = []
+    entries = model_output.split("######") # Split into individual poem entries
+
+    for entry in entries:
+        if not entry.strip(): # If entry is empty, then skip the iteration
+          continue
+
+        parts = entry.split(" === ")
+        pattern = r'<<(.*?)>>'
+        section_title = re.findall(pattern, parts[0])[0]
+        poem_title = re.findall(pattern, parts[1])[0]
+
+        if section_title == "<NONE>":
+            section_title = None
+
+        poem_entries.append({
+            "section_title": section_title,
+            "poem_title": poem_title,
+        })
+
+    return poem_entries
+
+def extractPoemTitles(book_text: str) -> List[PoemTitleResponse]:
+    prompt = f"{promptExtractTitles} \n\n {book_text}"
+
+    googleLLM_response = googleLLM.models.generate_content(
+        model="gemini-1.5-pro", 
+        contents=prompt,
+    )
+
+    extractedPoems = parseModelOutput(googleLLM_response.text)
+    return extractedPoems

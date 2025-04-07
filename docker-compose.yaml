@@ -24,3 +24,18 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/code
+
+  postgres:
+    image: "postgres:16" # Updated to a valid version
+    restart: always
+    ports:
+      - "5432:5432" 
+    environment:
+      POSTGRES_USER: myuser 
+      POSTGRES_PASSWORD: mypassword   
+      POSTGRES_DB: myPoetry       
+    volumes:
+      - PoetryVolume:/var/lib/postgresql/data/
+
+volumes:
+  PoetryVolume:
